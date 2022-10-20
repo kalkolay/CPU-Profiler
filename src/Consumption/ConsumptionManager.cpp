@@ -7,7 +7,7 @@ ConsumptionManager::ConsumptionManager()
     , shader( new Shader(projectionMatrix) )
 {
     // Dimensions and location of the coord system for total CPU consumption (in the form of rectangle)
-    const BaseWorker::Rect totalConsumptionGraphSize = { 100, 100, 10, 10 };
+    const BaseWorker::Rect totalConsumptionGraphSize = { 200, 200, 45, 40 };
     graph = new TotalConsumption(totalConsumptionGraphSize);
 
     if (!numCPU)
@@ -21,24 +21,12 @@ ConsumptionManager::ConsumptionManager()
     calculateOrtho2dProjection(projectionMatrix);
 
     graph->start();
-
-    for (int i = 0; i < numCPU; ++i)
-    {
-        // Dimensions and location of the coord system for CPU consumption per core (in the form of rectangle)
-        const BaseWorker::Rect coresConsumptionGraphSize = {50, 50, (double)(120 + i % 2 * 60),
-                                                            (double)(i / 2 * 70 + 10)};
-        graph2[i] = new CoresConsumption(i, coresConsumptionGraphSize);
-        graph2[i]->start();
-    }
 }
 
 ConsumptionManager::~ConsumptionManager()
 {
     delete shader;
     delete[] graph;
-    for (int i = 0; i < numCPU; ++i)
-        delete[] graph2[i];
-    delete[] graph2;
     numCPU = 0;
 }
 
@@ -85,9 +73,6 @@ void ConsumptionManager::draw()
     glPointSize(3.0);
 
     graph->drawCurve(shader);
-
-    for (size_t i = 0; i < numCPU; ++i)
-        graph2[i]->drawCurve(shader);
 
     glFlush();
 }
